@@ -156,10 +156,10 @@ class ReporterAgent(BaseAgent):
         # ── Title ──
         pdf.set_font("Helvetica", "B", 20)
         pdf.set_text_color(30, 30, 30)
-        pdf.cell(0, 12, f"Market Intelligence Report", ln=True, align="C")
+        pdf.cell(0, 12, "Market Intelligence Report", new_x="LMARGIN", new_y="NEXT", align="C")
         pdf.set_font("Helvetica", "", 11)
         pdf.set_text_color(100, 100, 100)
-        pdf.cell(0, 8, date, ln=True, align="C")
+        pdf.cell(0, 8, date, new_x="LMARGIN", new_y="NEXT", align="C")
         pdf.ln(6)
 
         # ── Sentiment badge ──
@@ -167,7 +167,7 @@ class ReporterAgent(BaseAgent):
         pdf.set_text_color(r, g, b)
         emoji_map = {"Bullish": "[BULLISH]", "Bearish": "[BEARISH]", "Neutral": "[NEUTRAL]"}
         badge = emoji_map.get(sentiment, sentiment)
-        pdf.cell(0, 10, f"Overall Sentiment: {badge}  |  Confidence: {confidence}/100", ln=True, align="C")
+        pdf.cell(0, 10, f"Overall Sentiment: {badge}  |  Confidence: {confidence}/100", new_x="LMARGIN", new_y="NEXT", align="C")
         pdf.ln(4)
 
         # ── Divider ──
@@ -194,7 +194,7 @@ class ReporterAgent(BaseAgent):
         self._pdf_section(pdf, "Top Movers / Stocks to Watch")
         pdf.set_font("Helvetica", "B", 10)
         pdf.set_text_color(0, 80, 160)
-        pdf.cell(0, 7, safe("  " + "  |  ".join(analysis.get("top_movers", []))), ln=True)
+        pdf.cell(0, 7, safe("  " + "  |  ".join(analysis.get("top_movers", []))), new_x="LMARGIN", new_y="NEXT")
         pdf.ln(3)
 
         # ── Risk Factors ──
@@ -224,7 +224,7 @@ class ReporterAgent(BaseAgent):
     def _pdf_section(self, pdf: FPDF, title: str):
         pdf.set_font("Helvetica", "B", 12)
         pdf.set_text_color(20, 20, 80)
-        pdf.cell(0, 9, title, ln=True)
+        pdf.cell(0, 9, title, new_x="LMARGIN", new_y="NEXT")
         pdf.set_draw_color(180, 180, 220)
         pdf.line(10, pdf.get_y(), 200, pdf.get_y())
         pdf.ln(3)
