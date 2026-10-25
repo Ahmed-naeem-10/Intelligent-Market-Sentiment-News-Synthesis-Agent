@@ -28,15 +28,26 @@ class ReporterAgent(BaseAgent):
     def run(self, analysis: Dict, articles: List[Dict]) -> Dict[str, str]:
         """
         Returns dict with paths:
-        {"markdown": "reports/2025-07-17/report.md", "pdf": "reports/2025-07-17/report.pdf"}
+        {"markdown": "...", "pdf": "..."}
         """
         today = datetime.now().strftime("%Y-%m-%d")
-        output_dir = os.path.join(self.reports_dir, today)
-        os.makedirs(output_dir, exist_ok=True)
+        base_dir = os.getenv("REPORTS_DIR", "reports")
+
+        # Try dated subfolder first, fall back to base_dir directly
+        output_dir = os.path.join(base_dir, today)
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+        except OSError:
+            output_dir = base_dir
+            try:
+                os.makedirs(output_dir, exist_ok=True)
+            except OSError:
+                import tempfile
+                output_dir = tempfile.gettempdir()
 
         from datetime import datetime as _dt
         timestamp = _dt.now().strftime("%H%M%S")
-        md_path = os.path.join(output_dir, "market_report.md")
+        md_path  = os.path.join(output_dir, "market_report.md")
         pdf_path = os.path.join(output_dir, f"market_report_{timestamp}.pdf")
 
         md_content = self._build_markdown(analysis, articles, today)

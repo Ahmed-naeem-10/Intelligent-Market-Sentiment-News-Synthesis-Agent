@@ -8,7 +8,6 @@
 import streamlit as st
 import os
 import logging
-import tempfile
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
@@ -16,8 +15,10 @@ from dotenv import load_dotenv
 load_dotenv()
 logging.basicConfig(level=logging.WARNING)
 
-# ── Use /tmp for reports on Streamlit Cloud (read-only filesystem) ──
-os.environ.setdefault("REPORTS_DIR", tempfile.gettempdir())
+# ── Force writable temp dir for reports on Streamlit Cloud ──
+import tempfile
+_tmp = tempfile.gettempdir()
+os.environ["REPORTS_DIR"] = _tmp
 
 from agents import ResearcherAgent, AnalystAgent, ReporterAgent
 
