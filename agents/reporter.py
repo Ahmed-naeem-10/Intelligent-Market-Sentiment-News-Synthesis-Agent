@@ -150,6 +150,7 @@ class ReporterAgent(BaseAgent):
             return text.encode("latin-1", errors="replace").decode("latin-1")
 
         pdf = FPDF()
+        pdf.set_margins(15, 15, 15)
         pdf.set_auto_page_break(auto=True, margin=15)
         pdf.add_page()
 
@@ -172,7 +173,7 @@ class ReporterAgent(BaseAgent):
 
         # ── Divider ──
         pdf.set_draw_color(200, 200, 200)
-        pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+        pdf.line(pdf.l_margin, pdf.get_y(), pdf.w - pdf.r_margin, pdf.get_y())
         pdf.ln(6)
 
         # ── Executive Summary ──
@@ -226,5 +227,5 @@ class ReporterAgent(BaseAgent):
         pdf.set_text_color(20, 20, 80)
         pdf.cell(0, 9, title, new_x="LMARGIN", new_y="NEXT")
         pdf.set_draw_color(180, 180, 220)
-        pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+        pdf.line(pdf.l_margin, pdf.get_y(), pdf.w - pdf.r_margin, pdf.get_y())
         pdf.ln(3)
