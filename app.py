@@ -44,7 +44,7 @@ st.markdown("""
 
 html, body, [class*="css"] {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background-color: #0a0e1a !important;
+    background-color: #0f0a00 !important;
     color: #e2e8f0 !important;
 }
 
@@ -60,8 +60,8 @@ section[data-testid="stSidebar"] { display: none; }
    NAVBAR
 ══════════════════════════════════════════════ */
 .navbar {
-    background: linear-gradient(135deg, #0d1117 0%, #161b27 100%);
-    border-bottom: 1px solid #1e2d3d;
+    background: linear-gradient(135deg, #100d04 0%, #1a1408 100%);
+    border-bottom: 1px solid #2a2010;
     padding: 18px 48px;
     display: flex;
     align-items: center;
@@ -78,7 +78,7 @@ section[data-testid="stSidebar"] { display: none; }
 }
 .navbar-logo {
     width: 38px; height: 38px;
-    background: linear-gradient(135deg, #00d4aa, #0088ff);
+    background: linear-gradient(135deg, #f97316, #f59e0b);
     border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
     font-size: 18px; font-weight: 800;
@@ -97,9 +97,9 @@ section[data-testid="stSidebar"] { display: none; }
     text-transform: uppercase;
 }
 .navbar-badge {
-    background: linear-gradient(135deg, #00d4aa22, #0088ff22);
-    border: 1px solid #00d4aa44;
-    color: #00d4aa;
+    background: linear-gradient(135deg, #f9731622, #f59e0b22);
+    border: 1px solid #f9731644;
+    color: #f97316;
     padding: 4px 14px;
     border-radius: 20px;
     font-size: 0.75rem;
@@ -111,7 +111,7 @@ section[data-testid="stSidebar"] { display: none; }
    HERO SECTION
 ══════════════════════════════════════════════ */
 .hero {
-    background: linear-gradient(135deg, #0d1117 0%, #0f1923 50%, #0d1117 100%);
+    background: linear-gradient(135deg, #100d04 0%, #120f05 50%, #100d04 100%);
     padding: 64px 48px 48px;
     text-align: center;
     position: relative;
@@ -123,14 +123,14 @@ section[data-testid="stSidebar"] { display: none; }
     top: -100px; left: 50%;
     transform: translateX(-50%);
     width: 600px; height: 300px;
-    background: radial-gradient(ellipse, #0088ff18 0%, transparent 70%);
+    background: radial-gradient(ellipse, #f59e0b18 0%, transparent 70%);
     pointer-events: none;
 }
 .hero-eyebrow {
     display: inline-block;
-    background: linear-gradient(135deg, #00d4aa22, #0088ff22);
-    border: 1px solid #00d4aa33;
-    color: #00d4aa;
+    background: linear-gradient(135deg, #f9731622, #f59e0b22);
+    border: 1px solid #f9731633;
+    color: #f97316;
     padding: 6px 18px;
     border-radius: 20px;
     font-size: 0.75rem;
@@ -148,7 +148,7 @@ section[data-testid="stSidebar"] { display: none; }
     margin: 0 0 16px;
 }
 .hero-title span {
-    background: linear-gradient(135deg, #00d4aa, #0088ff);
+    background: linear-gradient(135deg, #f97316, #f59e0b);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -170,8 +170,8 @@ section[data-testid="stSidebar"] { display: none; }
     margin-bottom: 8px;
 }
 .pipe-badge {
-    background: #1e2d3d;
-    border: 1px solid #2d3f55;
+    background: #2a2010;
+    border: 1px solid #3d2e12;
     padding: 8px 16px;
     border-radius: 8px;
     font-size: 0.8rem;
@@ -195,13 +195,13 @@ section[data-testid="stSidebar"] { display: none; }
 .stat-card {
     flex: 1;
     min-width: 160px;
-    background: #111827;
-    border: 1px solid #1e2d3d;
+    background: #161208;
+    border: 1px solid #2a2010;
     border-radius: 14px;
     padding: 20px 22px;
     transition: border-color 0.2s;
 }
-.stat-card:hover { border-color: #2d3f55; }
+.stat-card:hover { border-color: #3d2e12; }
 .stat-label {
     font-size: 0.7rem;
     font-weight: 600;
@@ -251,7 +251,7 @@ section[data-testid="stSidebar"] { display: none; }
     border: 1px solid #991b1b;
 }
 .sentiment-neutral {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    background: linear-gradient(135deg, #130f05 0%, #1e293b 100%);
     border: 1px solid #334155;
 }
 .sentiment-left { display: flex; align-items: center; gap: 20px; }
@@ -307,7 +307,7 @@ section[data-testid="stSidebar"] { display: none; }
 .conf-bar-fill {
     height: 100%;
     border-radius: 3px;
-    background: linear-gradient(90deg, #0088ff, #00d4aa);
+    background: linear-gradient(90deg, #f59e0b, #f97316);
 }
 
 /* ══════════════════════════════════════════════
@@ -330,8 +330,8 @@ section[data-testid="stSidebar"] { display: none; }
    INFO CARD
 ══════════════════════════════════════════════ */
 .info-card {
-    background: #111827;
-    border: 1px solid #1e2d3d;
+    background: #161208;
+    border: 1px solid #2a2010;
     border-radius: 14px;
     padding: 22px 24px;
     height: 100%;
@@ -342,7 +342,7 @@ section[data-testid="stSidebar"] { display: none; }
     gap: 10px;
     margin-bottom: 16px;
     padding-bottom: 14px;
-    border-bottom: 1px solid #1e2d3d;
+    border-bottom: 1px solid #2a2010;
 }
 .info-card-icon {
     width: 32px; height: 32px;
@@ -351,8 +351,8 @@ section[data-testid="stSidebar"] { display: none; }
     justify-content: center;
     font-size: 15px;
 }
-.icon-blue { background: #0088ff22; }
-.icon-green { background: #00d4aa22; }
+.icon-blue { background: #f59e0b22; }
+.icon-green { background: #f9731622; }
 .icon-red { background: #ef444422; }
 .icon-purple { background: #a855f722; }
 .info-card-title {
@@ -376,12 +376,12 @@ section[data-testid="stSidebar"] { display: none; }
     font-size: 0.875rem;
     line-height: 1.5;
     color: #cbd5e1;
-    background: #0f172a;
-    border: 1px solid #1e2d3d;
+    background: #130f05;
+    border: 1px solid #2a2010;
     transition: border-color 0.15s;
 }
-.list-item:hover { border-color: #2d3f55; }
-.list-dot-blue  { color: #3b82f6; font-size: 1.2rem; line-height: 1; margin-top:2px; flex-shrink:0; }
+.list-item:hover { border-color: #3d2e12; }
+.list-dot-blue  { color: #f97316; font-size: 1.2rem; line-height: 1; margin-top:2px; flex-shrink:0; }
 .list-dot-red   { color: #ef4444; font-size: 1.2rem; line-height: 1; margin-top:2px; flex-shrink:0; }
 
 /* ══════════════════════════════════════════════
@@ -389,9 +389,9 @@ section[data-testid="stSidebar"] { display: none; }
 ══════════════════════════════════════════════ */
 .ticker-wrap { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 4px; }
 .ticker {
-    background: linear-gradient(135deg, #0088ff18, #00d4aa18);
-    border: 1px solid #0088ff33;
-    color: #60a5fa;
+    background: linear-gradient(135deg, #f59e0b18, #f9731618);
+    border: 1px solid #f59e0b33;
+    color: #fb923c;
     padding: 6px 16px;
     border-radius: 8px;
     font-size: 0.85rem;
@@ -404,9 +404,9 @@ section[data-testid="stSidebar"] { display: none; }
    SUMMARY CARD
 ══════════════════════════════════════════════ */
 .summary-card {
-    background: linear-gradient(135deg, #0f172a, #111827);
-    border: 1px solid #1e2d3d;
-    border-left: 4px solid #0088ff;
+    background: linear-gradient(135deg, #130f05, #161208);
+    border: 1px solid #2a2010;
+    border-left: 4px solid #f59e0b;
     border-radius: 14px;
     padding: 22px 26px;
     margin-bottom: 20px;
@@ -418,7 +418,7 @@ section[data-testid="stSidebar"] { display: none; }
 .summary-label {
     font-size: 0.7rem;
     font-weight: 700;
-    color: #0088ff;
+    color: #f59e0b;
     text-transform: uppercase;
     letter-spacing: 1px;
     margin-bottom: 10px;
@@ -435,17 +435,17 @@ section[data-testid="stSidebar"] { display: none; }
     padding: 14px 16px;
     border-radius: 10px;
     margin-bottom: 8px;
-    background: #0f172a;
-    border: 1px solid #1e2d3d;
+    background: #130f05;
+    border: 1px solid #2a2010;
     transition: border-color 0.15s, background 0.15s;
 }
 .article-item:hover {
-    border-color: #2d3f55;
-    background: #111827;
+    border-color: #3d2e12;
+    background: #161208;
 }
 .article-num {
     min-width: 26px; height: 26px;
-    background: #1e2d3d;
+    background: #2a2010;
     border-radius: 6px;
     display: flex; align-items: center;
     justify-content: center;
@@ -460,10 +460,10 @@ section[data-testid="stSidebar"] { display: none; }
     line-height: 1.4;
 }
 .article-title a {
-    color: #60a5fa;
+    color: #fb923c;
     text-decoration: none;
 }
-.article-title a:hover { color: #93c5fd; text-decoration: underline; }
+.article-title a:hover { color: #fdba74; text-decoration: underline; }
 .article-source {
     font-size: 0.7rem;
     color: #475569;
@@ -481,8 +481,8 @@ section[data-testid="stSidebar"] { display: none; }
     padding: 14px 18px;
     border-radius: 10px;
     margin-bottom: 8px;
-    border: 1px solid #1e2d3d;
-    background: #0f172a;
+    border: 1px solid #2a2010;
+    background: #130f05;
 }
 .step-icon {
     width: 36px; height: 36px;
@@ -492,9 +492,9 @@ section[data-testid="stSidebar"] { display: none; }
     font-size: 16px;
     flex-shrink: 0;
 }
-.step-pending  { background: #1e2d3d; }
-.step-running  { background: #0088ff22; border: 1px solid #0088ff44; }
-.step-done     { background: #00d4aa22; border: 1px solid #00d4aa44; }
+.step-pending  { background: #2a2010; }
+.step-running  { background: #f59e0b22; border: 1px solid #f59e0b44; }
+.step-done     { background: #f9731622; border: 1px solid #f9731644; }
 .step-error    { background: #ef444422; border: 1px solid #ef444444; }
 .step-text { flex: 1; }
 .step-name { font-size: 0.85rem; font-weight: 600; color: #cbd5e1; }
@@ -509,7 +509,7 @@ section[data-testid="stSidebar"] { display: none; }
    DOWNLOAD BUTTON
 ══════════════════════════════════════════════ */
 div[data-testid="stDownloadButton"] button {
-    background: linear-gradient(135deg, #0088ff, #0066cc) !important;
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
     color: white !important;
     border: none !important;
     border-radius: 10px !important;
@@ -527,7 +527,7 @@ div[data-testid="stDownloadButton"] button:hover {
 
 /* Run button */
 div[data-testid="stButton"] > button[kind="primary"] {
-    background: linear-gradient(135deg, #0088ff, #00d4aa) !important;
+    background: linear-gradient(135deg, #f59e0b, #f97316) !important;
     color: white !important;
     border: none !important;
     border-radius: 10px !important;
@@ -547,7 +547,7 @@ div[data-testid="stButton"] > button[kind="primary"]:hover {
 ══════════════════════════════════════════════ */
 .custom-divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent, #1e2d3d, transparent);
+    background: linear-gradient(90deg, transparent, #2a2010, transparent);
     margin: 32px 0;
 }
 
@@ -555,8 +555,8 @@ div[data-testid="stButton"] > button[kind="primary"]:hover {
    FOOTER
 ══════════════════════════════════════════════ */
 .footer {
-    background: #0d1117;
-    border-top: 1px solid #1e2d3d;
+    background: #100d04;
+    border-top: 1px solid #2a2010;
     padding: 24px 48px;
     text-align: center;
     color: #334155;
@@ -567,8 +567,8 @@ div[data-testid="stButton"] > button[kind="primary"]:hover {
    STREAMLIT OVERRIDES
 ══════════════════════════════════════════════ */
 div[data-testid="stExpander"] {
-    background: #111827 !important;
-    border: 1px solid #1e2d3d !important;
+    background: #161208 !important;
+    border: 1px solid #2a2010 !important;
     border-radius: 14px !important;
 }
 div[data-testid="stExpander"] summary {
@@ -578,8 +578,8 @@ div[data-testid="stExpander"] summary {
 
 /* status widget */
 div[data-testid="stStatusWidget"] {
-    background: #111827 !important;
-    border-color: #1e2d3d !important;
+    background: #161208 !important;
+    border-color: #2a2010 !important;
     border-radius: 12px !important;
 }
 </style>
@@ -674,12 +674,12 @@ st.markdown(f"""
 <div class="stats-row">
     <div class="stat-card">
         <div class="stat-label">LLM Engine</div>
-        <div class="stat-value" style="font-size:1.1rem;color:#60a5fa;">GPT-OSS 20B</div>
+        <div class="stat-value" style="font-size:1.1rem;color:#fb923c;">GPT-OSS 20B</div>
         <div class="stat-sub">via Groq · Ultra-fast inference</div>
     </div>
     <div class="stat-card">
         <div class="stat-label">News Source</div>
-        <div class="stat-value" style="font-size:1.1rem;color:#34d399;">{news_src}</div>
+        <div class="stat-value" style="font-size:1.1rem;color:#fbbf24;">{news_src}</div>
         <div class="stat-sub">Real-time headlines</div>
     </div>
     <div class="stat-card">
@@ -689,7 +689,7 @@ st.markdown(f"""
     </div>
     <div class="stat-card">
         <div class="stat-label">Output Formats</div>
-        <div class="stat-value" style="font-size:1.1rem;color:#a78bfa;">PDF + MD</div>
+        <div class="stat-value" style="font-size:1.1rem;color:#fb923c;">PDF + MD</div>
         <div class="stat-sub">Professional reports</div>
     </div>
     <div class="stat-card">
@@ -707,7 +707,7 @@ st.markdown(f"""
 
 st.markdown('<div class="content-wrap">', unsafe_allow_html=True)
 
-col_btn, col_space = st.columns([1, 3])
+col_l, col_btn, col_r = st.columns([2, 1, 2])
 with col_btn:
     run_btn = st.button("🚀  Run Analysis", type="primary", use_container_width=True)
 
@@ -912,14 +912,14 @@ else:
     sample_path = Path("reports/sample/market_report_sample.pdf")
 
     st.markdown("""
-    <div style="background:#111827;border:1px solid #1e2d3d;border-radius:16px;
+    <div style="background:#161208;border:1px solid #2a2010;border-radius:16px;
                 padding:40px;text-align:center;margin-bottom:24px;">
         <div style="font-size:3rem;margin-bottom:16px;">📊</div>
         <div style="font-size:1.1rem;font-weight:700;color:#e2e8f0;margin-bottom:8px;">
             Ready to Generate Your Report
         </div>
         <div style="font-size:0.9rem;color:#64748b;max-width:480px;margin:0 auto 24px;">
-            Click <strong style="color:#60a5fa;">Run Analysis</strong> to fetch live market news,
+            Click <strong style="color:#fb923c;">Run Analysis</strong> to fetch live market news,
             run AI sentiment analysis, and generate a professional PDF report — all in under 30 seconds.
         </div>
     </div>
@@ -927,7 +927,7 @@ else:
 
     if sample_path.exists():
         st.markdown("""
-        <div style="background:#0f172a;border:1px solid #1e2d3d;border-radius:14px;
+        <div style="background:#130f05;border:1px solid #2a2010;border-radius:14px;
                     padding:22px 26px;margin-bottom:8px;">
             <div style="font-size:0.7rem;font-weight:700;color:#475569;
                         text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;">
@@ -958,3 +958,4 @@ st.markdown("""
     &nbsp;·&nbsp; Multi-agent architecture: Researcher → Analyst → Reporter
 </div>
 """, unsafe_allow_html=True)
+
