@@ -1,231 +1,217 @@
 """
 Agent 3: Reporter
 -----------------
-Kaam: Analyst ke structured output ko lekr
-      - Markdown (.md) report banana
-      - PDF report banana
-      - Dono ko dated folder mein save karna
+Generates Markdown + PDF reports from analyst output.
+Compatible with both fpdf 1.7.x and fpdf2 2.x.
+PDF built in memory via BytesIO.
 """
 
 import os
+import io
 from typing import Dict, List
 from datetime import datetime
 from .base_agent import BaseAgent
 
 from fpdf import FPDF
 
+SENTIMENT_COLOR = {"Bullish": (0, 128, 0), "Bearish": (180, 0, 0), "Neutral": (80, 80, 80)}
 
-SENTIMENT_EMOJI = {"Bullish": "📈", "Bearish": "📉", "Neutral": "⚖️"}
-SENTIMENT_COLOR = {"Bullish": (0, 128, 0), "Bearish": (180, 0, 0), "Neutral": (100, 100, 100)}
+L_MARGIN = 10
+R_MARGIN = 10
+PAGE_W   = 210
+USABLE_W = PAGE_W - L_MARGIN - R_MARGIN  # 190mm
+
+
+def _safe(text: str) -> str:
+    for src, dst in [
+        ("\u2018","'"),("\u2019","'"),("\u201c",'"'),("\u201d",'"'),
+        ("\u2013","-"),("\u2014","-"),("\u2011","-"),("\u2010","-"),
+        ("\u2012","-"),("\u2015","-"),("\u2026","..."),
+        ("\u00e9","e"),("\u00e8","e"),("\u00e0","a"),("\u00e2","a"),
+        ("\u20ac","EUR"),("\u00a0"," "),("\u00b0","deg"),
+    ]:
+        text = text.replace(src, dst)
+    return text.encode("latin-1", errors="replace").decode("latin-1")
+
+
+def _cell(pdf, w, h, txt, align="L", ln=1):
+    """Compatibility wrapper — works on fpdf 1.7.x and fpdf2 2.x."""
+    try:
+        # fpdf2 style
+        from fpdf.enums import XPos, YPos
+        nx = XPos.LMARGIN
+        ny = YPos.NEXT if ln else YPos.TOP
+        pdf.cell(w, h, txt, align=align, new_x=nx, new_y=ny)
+    except Exception:
+        # fpdf 1.x style
+        pdf.cell(w, h, txt, ln=ln, align=align)
 
 
 class ReporterAgent(BaseAgent):
 
     def __init__(self):
         super().__init__(name="Reporter")
-        self.reports_dir = os.getenv("REPORTS_DIR", "reports")
 
     def run(self, analysis: Dict, articles: List[Dict]) -> Dict[str, str]:
-        """
-        Returns dict with paths:
-        {"markdown": "...", "pdf": "..."}
-        """
-        today = datetime.now().strftime("%Y-%m-%d")
-        base_dir = os.getenv("REPORTS_DIR", "reports")
+        today     = datetime.now().strftime("%Y-%m-%d")
+        timestamp = datetime.now().strftime("%H%M%S")
 
-        # Try dated subfolder first, fall back to base_dir directly
-        output_dir = os.path.join(base_dir, today)
-        try:
-            os.makedirs(output_dir, exist_ok=True)
-        except OSError:
-            output_dir = base_dir
+        import tempfile
+        output_dir = None
+        for candidate in [
+            os.path.join(os.getenv("REPORTS_DIR", "reports"), today),
+            os.getenv("REPORTS_DIR", "reports"),
+            os.path.join(tempfile.gettempdir(), today),
+            tempfile.gettempdir(),
+        ]:
             try:
-                os.makedirs(output_dir, exist_ok=True)
+                os.makedirs(candidate, exist_ok=True)
+                output_dir = candidate
+                break
             except OSError:
-                import tempfile
-                output_dir = tempfile.gettempdir()
+                continue
+        if not output_dir:
+            output_dir = tempfile.gettempdir()
 
-        from datetime import datetime as _dt
-        timestamp = _dt.now().strftime("%H%M%S")
         md_path  = os.path.join(output_dir, "market_report.md")
         pdf_path = os.path.join(output_dir, f"market_report_{timestamp}.pdf")
 
-        md_content = self._build_markdown(analysis, articles, today)
-        self._save_markdown(md_content, md_path)
-        self._save_pdf(analysis, articles, today, pdf_path)
+        with open(md_path, "w", encoding="utf-8") as f:
+            f.write(self._build_markdown(analysis, articles, today))
+        self.logger.info(f"Markdown saved: {md_path}")
 
-        self.logger.info(f"Reports saved → {output_dir}")
+        pdf_bytes = self._build_pdf_bytes(analysis, articles, today)
+        with open(pdf_path, "wb") as f:
+            f.write(pdf_bytes)
+        self.logger.info(f"PDF saved: {pdf_path}")
+
         return {"markdown": md_path, "pdf": pdf_path}
 
-    # ------------------------------------------------------------------ #
-    # Markdown builder                                                     #
-    # ------------------------------------------------------------------ #
-
     def _build_markdown(self, analysis: Dict, articles: List[Dict], date: str) -> str:
-        sentiment = analysis.get("sentiment", "N/A")
-        emoji = SENTIMENT_EMOJI.get(sentiment, "")
+        sentiment  = analysis.get("sentiment", "N/A")
         confidence = analysis.get("confidence", 0)
-        bar = self._confidence_bar(confidence)
-
+        filled     = round(confidence / 10)
+        bar        = "█" * filled + "░" * (10 - filled)
+        emoji      = {"Bullish": "📈", "Bearish": "📉", "Neutral": "⚖️"}.get(sentiment, "")
         lines = [
-            f"# Market Intelligence Report — {date}",
-            "",
-            f"## Overall Market Sentiment: {emoji} **{sentiment}**",
-            "",
-            f"**Confidence Score:** {confidence}/100  {bar}",
-            "",
-            "---",
-            "",
-            f"## Executive Summary",
-            f"> {analysis.get('one_line_summary', '')}",
-            "",
-            "---",
-            "",
+            f"# Market Intelligence Report — {date}", "",
+            f"## Overall Market Sentiment: {emoji} **{sentiment}**", "",
+            f"**Confidence Score:** {confidence}/100  {bar}", "", "---", "",
+            "## Executive Summary",
+            f"> {analysis.get('one_line_summary', '')}", "", "---", "",
             "## Key Reasons",
         ]
-        for reason in analysis.get("key_reasons", []):
-            lines.append(f"- {reason}")
-
-        lines += [
-            "",
-            "## Top Movers / Stocks to Watch",
-            ", ".join([f"**{t}**" for t in analysis.get("top_movers", [])]),
-            "",
-            "## Risk Factors",
-        ]
-        for risk in analysis.get("risk_factors", []):
-            lines.append(f"- ⚠️ {risk}")
-
-        lines += [
-            "",
-            "---",
-            "",
-            f"## Source Articles ({len(articles)} analyzed)",
-            "",
-        ]
+        for r in analysis.get("key_reasons", []):
+            lines.append(f"- {r}")
+        lines += ["", "## Top Movers / Stocks to Watch",
+                  ", ".join([f"**{t}**" for t in analysis.get("top_movers", [])]),
+                  "", "## Risk Factors"]
+        for r in analysis.get("risk_factors", []):
+            lines.append(f"- ⚠️ {r}")
+        lines += ["", "---", f"## Source Articles ({len(articles)} analyzed)", ""]
         for i, a in enumerate(articles, 1):
             lines.append(f"{i}. [{a['title']}]({a['url']}) — *{a['source']}*")
-
-        lines += [
-            "",
-            "---",
-            f"*Generated by Automated Market Intelligence System | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*",
-        ]
+        lines += ["", "---",
+                  f"*Generated by Automated Market Intelligence System | {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*"]
         return "\n".join(lines)
 
-    def _confidence_bar(self, score: int) -> str:
-        filled = round(score / 10)
-        return "█" * filled + "░" * (10 - filled)
-
-    # ------------------------------------------------------------------ #
-    # File writers                                                         #
-    # ------------------------------------------------------------------ #
-
-    def _save_markdown(self, content: str, path: str):
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(content)
-        self.logger.info(f"Markdown saved: {path}")
-
-    def _save_pdf(self, analysis: Dict, articles: List[Dict], date: str, path: str):
-        sentiment = analysis.get("sentiment", "N/A")
+    def _build_pdf_bytes(self, analysis: Dict, articles: List[Dict], date: str) -> bytes:
+        sentiment  = analysis.get("sentiment", "N/A")
         confidence = analysis.get("confidence", 0)
-        r, g, b = SENTIMENT_COLOR.get(sentiment, (0, 0, 0))
+        cr, cg, cb = SENTIMENT_COLOR.get(sentiment, (60, 60, 60))
+        badge = {"Bullish": "[BULLISH]", "Bearish": "[BEARISH]",
+                 "Neutral": "[NEUTRAL]"}.get(sentiment, sentiment)
+        W = USABLE_W
 
-        def safe(text: str) -> str:
-            """Normalize unicode punctuation to ASCII, then encode to latin-1 safely."""
-            replacements = {
-                "\u2018": "'", "\u2019": "'",   # smart single quotes → '
-                "\u201c": '"', "\u201d": '"',   # smart double quotes → "
-                "\u2013": "-", "\u2014": "-",   # en dash, em dash → -
-                "\u2011": "-", "\u2010": "-",   # non-breaking hyphen, hyphen → -
-                "\u2012": "-", "\u2015": "-",   # figure dash, horizontal bar → -
-                "\u2026": "...",                 # ellipsis → ...
-                "\u00e9": "e", "\u00e8": "e",   # accented e
-                "\u00e0": "a", "\u00e2": "a",   # accented a
-                "\u20ac": "EUR",                 # euro sign
-                "\u00a0": " ",                   # non-breaking space
-            }
-            for orig, replacement in replacements.items():
-                text = text.replace(orig, replacement)
-            return text.encode("latin-1", errors="replace").decode("latin-1")
-
-        pdf = FPDF()
-        pdf.set_margins(15, 15, 15)
-        pdf.set_auto_page_break(auto=True, margin=15)
+        pdf = FPDF(orientation="P", unit="mm", format="A4")
+        pdf.set_margins(L_MARGIN, 10, R_MARGIN)
+        pdf.set_auto_page_break(auto=True, margin=12)
         pdf.add_page()
 
-        # ── Title ──
-        pdf.set_font("Helvetica", "B", 20)
+        # Title
+        pdf.set_font("Helvetica", "B", 18)
         pdf.set_text_color(30, 30, 30)
-        pdf.cell(0, 12, "Market Intelligence Report", new_x="LMARGIN", new_y="NEXT", align="C")
-        pdf.set_font("Helvetica", "", 11)
-        pdf.set_text_color(100, 100, 100)
-        pdf.cell(0, 8, date, new_x="LMARGIN", new_y="NEXT", align="C")
-        pdf.ln(6)
+        _cell(pdf, W, 12, "Market Intelligence Report", align="C")
 
-        # ── Sentiment badge ──
-        pdf.set_font("Helvetica", "B", 16)
-        pdf.set_text_color(r, g, b)
-        emoji_map = {"Bullish": "[BULLISH]", "Bearish": "[BEARISH]", "Neutral": "[NEUTRAL]"}
-        badge = emoji_map.get(sentiment, sentiment)
-        pdf.cell(0, 10, f"Overall Sentiment: {badge}  |  Confidence: {confidence}/100", new_x="LMARGIN", new_y="NEXT", align="C")
+        pdf.set_font("Helvetica", "", 10)
+        pdf.set_text_color(120, 120, 120)
+        _cell(pdf, W, 7, _safe(date), align="C")
         pdf.ln(4)
 
-        # ── Divider ──
+        # Sentiment
+        pdf.set_font("Helvetica", "B", 13)
+        pdf.set_text_color(cr, cg, cb)
+        _cell(pdf, W, 9,
+              _safe(f"Overall Sentiment: {badge}   |   Confidence: {confidence}/100"),
+              align="C")
+        pdf.ln(3)
+
+        # Divider
         pdf.set_draw_color(200, 200, 200)
-        pdf.line(pdf.l_margin, pdf.get_y(), pdf.w - pdf.r_margin, pdf.get_y())
-        pdf.ln(6)
+        pdf.line(L_MARGIN, pdf.get_y(), L_MARGIN + W, pdf.get_y())
+        pdf.ln(5)
 
-        # ── Executive Summary ──
-        self._pdf_section(pdf, "Executive Summary")
-        pdf.set_font("Helvetica", "I", 11)
+        # Executive Summary
+        self._section(pdf, W, "Executive Summary")
+        pdf.set_font("Helvetica", "I", 10)
         pdf.set_text_color(50, 50, 50)
-        pdf.multi_cell(0, 7, safe(analysis.get("one_line_summary", "")), align="L")
-        pdf.ln(4)
+        pdf.multi_cell(W, 6, _safe(analysis.get("one_line_summary", "")))
+        pdf.ln(3)
 
-        # ── Key Reasons ──
-        self._pdf_section(pdf, "Key Reasons")
+        # Key Reasons
+        self._section(pdf, W, "Key Reasons")
         pdf.set_font("Helvetica", "", 10)
         pdf.set_text_color(40, 40, 40)
         for reason in analysis.get("key_reasons", []):
-            pdf.multi_cell(0, 6, safe(f"  - {reason}"))
-        pdf.ln(3)
+            pdf.multi_cell(W, 6, _safe(f"- {reason}"))
+        pdf.ln(2)
 
-        # ── Top Movers ──
-        self._pdf_section(pdf, "Top Movers / Stocks to Watch")
+        # Top Movers
+        self._section(pdf, W, "Top Movers / Stocks to Watch")
         pdf.set_font("Helvetica", "B", 10)
-        pdf.set_text_color(0, 80, 160)
-        pdf.cell(0, 7, safe("  " + "  |  ".join(analysis.get("top_movers", []))), new_x="LMARGIN", new_y="NEXT")
-        pdf.ln(3)
+        pdf.set_text_color(0, 70, 150)
+        movers = "  |  ".join(analysis.get("top_movers", [])) or "N/A"
+        pdf.multi_cell(W, 7, _safe(movers))
+        pdf.ln(2)
 
-        # ── Risk Factors ──
-        self._pdf_section(pdf, "Risk Factors")
+        # Risk Factors
+        self._section(pdf, W, "Risk Factors")
         pdf.set_font("Helvetica", "", 10)
         pdf.set_text_color(160, 60, 0)
         for risk in analysis.get("risk_factors", []):
-            pdf.multi_cell(0, 6, safe(f"  [!] {risk}"))
-        pdf.ln(3)
+            pdf.multi_cell(W, 6, _safe(f"[!] {risk}"))
+        pdf.ln(2)
 
-        # ── Source Articles ──
-        self._pdf_section(pdf, f"Source Articles Analyzed ({len(articles)})")
+        # Source Articles
+        self._section(pdf, W, f"Source Articles ({len(articles)})")
         pdf.set_font("Helvetica", "", 8)
         pdf.set_text_color(80, 80, 80)
         for i, a in enumerate(articles, 1):
-            pdf.multi_cell(0, 5, safe(f"{i}. {a['title']} ({a['source']})"))
+            pdf.multi_cell(W, 5,
+                _safe(f"{i}. {a.get('title','')} ({a.get('source','')})"))
 
-        # ── Footer ──
-        pdf.set_y(-15)
+        # Footer
+        pdf.set_y(-12)
         pdf.set_font("Helvetica", "I", 8)
-        pdf.set_text_color(150, 150, 150)
-        pdf.cell(0, 10, safe(f"Auto-generated by Market Intelligence System | {datetime.now().strftime('%Y-%m-%d %H:%M')}"), align="C")
+        pdf.set_text_color(160, 160, 160)
+        _cell(pdf, W, 8,
+              _safe(f"Auto-generated | {datetime.now().strftime('%Y-%m-%d %H:%M')}"),
+              align="C")
 
-        pdf.output(path)
-        self.logger.info(f"PDF saved: {path}")
+        # Return bytes — compatible with both fpdf 1.x and fpdf2 2.x
+        buf = io.BytesIO()
+        try:
+            # fpdf2 style
+            pdf.output(buf)
+            return buf.getvalue()
+        except TypeError:
+            # fpdf 1.x style — output returns a bytestring directly
+            return pdf.output(dest="S").encode("latin-1") if isinstance(pdf.output(dest="S"), str) else pdf.output(dest="S")
 
-    def _pdf_section(self, pdf: FPDF, title: str):
-        pdf.set_font("Helvetica", "B", 12)
+    def _section(self, pdf: FPDF, w: float, title: str):
+        pdf.set_font("Helvetica", "B", 11)
         pdf.set_text_color(20, 20, 80)
-        pdf.cell(0, 9, title, new_x="LMARGIN", new_y="NEXT")
+        _cell(pdf, w, 8, _safe(title))
         pdf.set_draw_color(180, 180, 220)
-        pdf.line(pdf.l_margin, pdf.get_y(), pdf.w - pdf.r_margin, pdf.get_y())
+        pdf.line(L_MARGIN, pdf.get_y(), L_MARGIN + w, pdf.get_y())
         pdf.ln(3)
