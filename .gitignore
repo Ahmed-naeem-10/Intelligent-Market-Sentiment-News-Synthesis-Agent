@@ -1,5 +1,6 @@
 # Environment variables — never commit real keys
 .env
+.streamlit/secrets.toml
 
 # Python cache
 __pycache__/
