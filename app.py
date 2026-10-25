@@ -759,12 +759,21 @@ if run_btn:
 
     # ── Step 3 ────────────────────────────────────────────────
     with st.status("📄 &nbsp; ReporterAgent — generating PDF + Markdown report...", expanded=False) as s3:
-        r = ReporterAgent().execute(analysis, articles)
-        if r.success:
-            pdf_path = r.data["pdf"]
-            s3.update(label=f"✅ &nbsp; ReporterAgent — reports saved in {r.execution_time_sec}s", state="complete")
-        else:
-            s3.update(label="❌ &nbsp; ReporterAgent — failed", state="error")
+        import tempfile as _tf
+        os.environ["REPORTS_DIR"] = _tf.gettempdir()
+        try:
+            r = ReporterAgent().execute(analysis, articles)
+            if r.success:
+                pdf_path = r.data["pdf"]
+                s3.update(label=f"✅ &nbsp; ReporterAgent — reports saved in {r.execution_time_sec}s", state="complete")
+            else:
+                s3.update(label=f"❌ &nbsp; ReporterAgent — {r.error}", state="error")
+                st.error(f"ReporterAgent error details: {r.error}")
+                pdf_path = ""
+        except Exception as _e:
+            s3.update(label=f"❌ &nbsp; ReporterAgent — exception caught", state="error")
+            st.error(f"ReporterAgent exception: {_e}")
+            pdf_path = ""
 
     st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
